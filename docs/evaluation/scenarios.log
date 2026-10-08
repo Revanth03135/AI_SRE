@@ -1,0 +1,158 @@
+
+=== lab-oom-killed: Container exceeds its memory limit (OOMKilled)
+[10/08/26 20:34:23] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:34:23] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:34:23] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:34:24] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:34:25] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:34:26] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:34:27] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:34:44] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights:  33%|###3      | 34/103 [00:00<00:00, 333.66it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 915.99it/s]
+  total 140.3s {'planner': 3.1, 'log_analysis': 64.5, 'fix_proposer': 55.6, 'verifier': 17.1} | tools 5 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=REVIEW trust=0.7479031 runbook_hit=False
+  diagnosis_correct=True action_correct=True -> CORRECT=True
+
+=== lab-crashloop: App exits at startup (database unreachable)
+[10/08/26 20:37:06] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:37:06] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:37:06] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:37:07] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:37:08] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:37:14] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:37:28] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:37:50] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+  total 150.6s {'planner': 1.7, 'log_analysis': 87.2, 'fix_proposer': 50.4, 'verifier': 11.3} | tools 5 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=REVIEW trust=0.7843255 runbook_hit=True
+  diagnosis_correct=True action_correct=True -> CORRECT=True
+
+=== lab-image-pull: Image does not exist (ImagePullBackOff)
+[10/08/26 20:39:56] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:39:56] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:39:56] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:39:57] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:40:15] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+Direct use of automatic function calling (AFC) in Models.generate_content is not recommended. Instead, we recommend to use AFC in Chat.send_message. Similarly, direct use of AFC in Models.generate_content_stream is not recommended. Instead, we recommend to use AFC in Chat.send_message_stream.
+  total 154.7s {'planner': 1.6, 'log_analysis': 55.0, 'fix_proposer': 42.8, 'verifier': 55.3} | tools 3 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'gemini'}
+  action=none verdict=ACCEPT trust=0.8413677 runbook_hit=True
+  diagnosis_correct=True action_correct=True -> CORRECT=True
+
+=== lab-pending: Requests more memory than the node has (FailedScheduling)
+[10/08/26 20:43:03] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:43:03] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:43:03] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:43:04] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:43:05] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:43:06] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:43:19] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+  total 118.0s {'planner': 1.4, 'log_analysis': 60.4, 'fix_proposer': 44.1, 'verifier': 12.1} | tools 4 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=ACCEPT trust=0.8211283 runbook_hit=True
+  diagnosis_correct=True action_correct=True -> CORRECT=True
+
+=== lab-readiness-fail: Readiness probe path returns 404
+[10/08/26 20:45:20] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:45:20] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:45:21] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:45:22] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+                    INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:45:35] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:45:58] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+  total 186.4s {'planner': 1.5, 'log_analysis': 104.7, 'fix_proposer': 67.8, 'verifier': 12.4} | tools 4 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=REVIEW trust=0.7155524 runbook_hit=True
+  diagnosis_correct=True action_correct=True -> CORRECT=True
+
+=== lab-scaled-to-zero: Deployment scaled to 0 replicas
+[10/08/26 20:48:59] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:49:00] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:49:00] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:49:01] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:49:02] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:49:16] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+  total 129.1s {'planner': 1.7, 'log_analysis': 59.7, 'fix_proposer': 51.3, 'verifier': 16.4} | tools 3 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=REVIEW trust=0.60892916 runbook_hit=True
+  diagnosis_correct=True action_correct=False -> CORRECT=False
+
+=== lab-missing-config: References a ConfigMap that does not exist
+[10/08/26 20:51:27] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:51:27] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:51:28] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:51:28] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:51:29] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:51:30] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+  total 77.1s {'planner': 1.6, 'log_analysis': 33.5, 'fix_proposer': 31.8, 'verifier': 10.2} | tools 3 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=REVIEW trust=0.7163331 runbook_hit=True
+  diagnosis_correct=True action_correct=True -> CORRECT=True
+
+=== lab-healthy: Nothing is wrong (control)
+[10/08/26 20:53:05] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:53:05] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:53:05] INFO     Processing request of type           server.py:733
+                             ListToolsRequest                                  
+[10/08/26 20:53:06] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:53:07] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:53:17] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:53:38] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+[10/08/26 20:53:53] INFO     Processing request of type           server.py:733
+                             CallToolRequest                                   
+  total 131.4s {'planner': 1.6, 'log_analysis': 83.9, 'fix_proposer': 34.0, 'verifier': 11.9} | tools 5 (errors 0) | models {'planner': 'groq', 'log_analysis': 'groq', 'fix_proposer': 'groq', 'verifier': 'groq'}
+  action=none verdict=REVIEW trust=0.6786395 runbook_hit=None
+  diagnosis_correct=False action_correct=True -> CORRECT=False
+
+SUMMARY over 8 scenarios: correct 6/8 | diagnosis 7/8 | action 7/8 | mean latency 136s
+evaluation finished with exit 0

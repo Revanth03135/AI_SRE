@@ -1,0 +1,141 @@
+{
+  "queries": 16,
+  "corpus_chunks": 50,
+  "hit_at_1": 1.0,
+  "hit_at_3": 1.0,
+  "hit_at_5": 1.0,
+  "mrr": 1.0,
+  "precision_at_5": 0.2,
+  "mean_top1_score": 0.708,
+  "misses": [],
+  "rows": [
+    {
+      "query": "Container keeps getting killed with exit code 137 because it reaches its memory limit",
+      "expected": "team_oomkilled-memory-limit.txt",
+      "rank": 1,
+      "top1": "team_oomkilled-memory-limit.txt",
+      "top1_score": 0.614,
+      "expected_score": 0.614
+    },
+    {
+      "query": "Pod in CrashLoopBackOff: the application exits at startup with a stack trace about a failed dependency connection",
+      "expected": "team_crashloopbackoff-application-error.txt",
+      "rank": 1,
+      "top1": "team_crashloopbackoff-application-error.txt",
+      "top1_score": 0.768,
+      "expected_score": 0.768
+    },
+    {
+      "query": "Pods stuck in ErrImagePull then ImagePullBackOff, manifest unknown for the image tag",
+      "expected": "team_imagepullbackoff-bad-image.txt",
+      "rank": 1,
+      "top1": "team_imagepullbackoff-bad-image.txt",
+      "top1_score": 0.757,
+      "expected_score": 0.757
+    },
+    {
+      "query": "Pod is Pending and the scheduler reports 0/1 nodes are available: Insufficient memory",
+      "expected": "team_pending-insufficient-resources.txt",
+      "rank": 1,
+      "top1": "team_pending-insufficient-resources.txt",
+      "top1_score": 0.751,
+      "expected_score": 0.751
+    },
+    {
+      "query": "Pod is Running but 0/1 containers are ready, readiness probe failed with connection refused, zero restarts",
+      "expected": "team_readiness-probe-failing.txt",
+      "rank": 1,
+      "top1": "team_readiness-probe-failing.txt",
+      "top1_score": 0.785,
+      "expected_score": 0.785
+    },
+    {
+      "query": "Container restarts at regular intervals because its liveness probe fails, exit code 143 from the kubelet",
+      "expected": "team_liveness-probe-restart-loop.txt",
+      "rank": 1,
+      "top1": "team_liveness-probe-restart-loop.txt",
+      "top1_score": 0.791,
+      "expected_score": 0.791
+    },
+    {
+      "query": "Deployment has only one replica available when three are needed after being scaled down by mistake, pods are healthy",
+      "expected": "team_deployment-under-replicated-scale.txt",
+      "rank": 1,
+      "top1": "team_deployment-under-replicated-scale.txt",
+      "top1_score": 0.72,
+      "expected_score": 0.72
+    },
+    {
+      "query": "Container cannot start: CreateContainerConfigError, configmap not found",
+      "expected": "team_missing-configmap-secret.txt",
+      "rank": 1,
+      "top1": "team_missing-configmap-secret.txt",
+      "top1_score": 0.564,
+      "expected_score": 0.564
+    },
+    {
+      "query": "cartservice cannot reach redis-cart, add to cart returns 500 errors",
+      "expected": "team_redis-cache-dependency-down.txt",
+      "rank": 1,
+      "top1": "team_redis-cache-dependency-down.txt",
+      "top1_score": 0.725,
+      "expected_score": 0.725
+    },
+    {
+      "query": "Service has an empty endpoints list because its selector matches no pods even though the pods are Ready",
+      "expected": "team_service-no-endpoints.txt",
+      "rank": 1,
+      "top1": "team_service-no-endpoints.txt",
+      "top1_score": 0.739,
+      "expected_score": 0.739
+    },
+    {
+      "query": "Services fail with no such host and temporary failure in name resolution, coredns pods are unhealthy",
+      "expected": "team_dns-resolution-failure.txt",
+      "rank": 1,
+      "top1": "team_dns-resolution-failure.txt",
+      "top1_score": 0.766,
+      "expected_score": 0.766
+    },
+    {
+      "query": "Requests are slow although nothing crashes, container CPU is pinned at its limit with heavy throttling",
+      "expected": "team_cpu-throttling-high-latency.txt",
+      "rank": 1,
+      "top1": "team_cpu-throttling-high-latency.txt",
+      "top1_score": 0.636,
+      "expected_score": 0.636
+    },
+    {
+      "query": "Deployment rollout never completes: ProgressDeadlineExceeded and the new ReplicaSet pods are not ready",
+      "expected": "team_rollout-stuck-progress-deadline.txt",
+      "rank": 1,
+      "top1": "team_rollout-stuck-progress-deadline.txt",
+      "top1_score": 0.776,
+      "expected_score": 0.776
+    },
+    {
+      "query": "Pods show Evicted: the node was low on resource memory and reports MemoryPressure",
+      "expected": "team_evicted-pods-node-pressure.txt",
+      "rank": 1,
+      "top1": "team_evicted-pods-node-pressure.txt",
+      "top1_score": 0.799,
+      "expected_score": 0.799
+    },
+    {
+      "query": "checkoutservice returns rpc error code Unavailable when it calls paymentservice",
+      "expected": "team_downstream-grpc-dependency-unavailable.txt",
+      "rank": 1,
+      "top1": "team_downstream-grpc-dependency-unavailable.txt",
+      "top1_score": 0.426,
+      "expected_score": 0.426
+    },
+    {
+      "query": "A chaos experiment killed a pod and a replacement pod appeared; error rate spiked briefly",
+      "expected": "team_chaos-pod-kill-self-healing.txt",
+      "rank": 1,
+      "top1": "team_chaos-pod-kill-self-healing.txt",
+      "top1_score": 0.717,
+      "expected_score": 0.717
+    }
+  ]
+}

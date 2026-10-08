@@ -1,0 +1,147 @@
+{
+  "tools_total": 15,
+  "exercised": 11,
+  "passed": 11,
+  "by_server": {
+    "kubernetes": {
+      "tools": 7,
+      "pass": 7,
+      "fail": 0,
+      "not_run": 0
+    },
+    "observability": {
+      "tools": 4,
+      "pass": 4,
+      "fail": 0,
+      "not_run": 0
+    },
+    "github": {
+      "tools": 4,
+      "pass": 0,
+      "fail": 0,
+      "not_run": 4
+    }
+  },
+  "results": [
+    {
+      "server": "kubernetes",
+      "tool": "list_pods",
+      "status": "PASS",
+      "seconds": 0.07,
+      "note": "",
+      "detail": "[{\"name\": \"cartservice-67ff6f55c8-gxllq\", \"uid\": \"56e7a4bb-e12a-4785-b1ba-1cfc7e4445da\", \""
+    },
+    {
+      "server": "kubernetes",
+      "tool": "get_pod_status",
+      "status": "PASS",
+      "seconds": 0.05,
+      "note": "",
+      "detail": "{\"phase\": \"Running\", \"ready_containers\": 1, \"restart_count\": 7, \"last_terminated_reason\": "
+    },
+    {
+      "server": "kubernetes",
+      "tool": "get_pod_events",
+      "status": "PASS",
+      "seconds": 0.21,
+      "note": "",
+      "detail": "[{\"reason\": \"Unhealthy\", \"message\": \"Liveness probe failed: timeout: failed to connect ser"
+    },
+    {
+      "server": "kubernetes",
+      "tool": "get_pod_logs",
+      "status": "PASS",
+      "seconds": 0.2,
+      "note": "",
+      "detail": "\"b'Checking CartService Health\\\\nChecking CartService Health\\\\nChecking CartService Health"
+    },
+    {
+      "server": "kubernetes",
+      "tool": "list_deployments",
+      "status": "PASS",
+      "seconds": 0.06,
+      "note": "",
+      "detail": "[{\"name\": \"lab-crashloop\", \"desired_replicas\": 1, \"available_replicas\": 0, \"ready_replicas"
+    },
+    {
+      "server": "kubernetes",
+      "tool": "scale_deployment",
+      "status": "PASS",
+      "seconds": 0.19,
+      "note": "",
+      "detail": "{\"ok\": true, \"namespace\": \"sre-lab\", \"deployment_name\": \"lab-healthy\", \"replicas\": 2}"
+    },
+    {
+      "server": "kubernetes",
+      "tool": "restart_deployment",
+      "status": "PASS",
+      "seconds": 0.13,
+      "note": "",
+      "detail": "{\"ok\": true, \"namespace\": \"sre-lab\", \"deployment_name\": \"lab-healthy\", \"restarted_at\": \"20"
+    },
+    {
+      "server": "observability",
+      "tool": "instant_query",
+      "status": "PASS",
+      "seconds": 4.12,
+      "note": "",
+      "detail": "[{\"metric\": {}, \"value\": [1791471713.811, \"33\"]}]"
+    },
+    {
+      "server": "observability",
+      "tool": "range_query",
+      "status": "PASS",
+      "seconds": 2.15,
+      "note": "",
+      "detail": "[{\"metric\": {}, \"values\": [[1791471410, \"33\"], [1791471470, \"33\"], [1791471530, \"33\"], [17"
+    },
+    {
+      "server": "observability",
+      "tool": "list_targets",
+      "status": "PASS",
+      "seconds": 2.66,
+      "note": "",
+      "detail": "[{\"job\": \"kubernetes-api-servers\", \"instance\": \"172.18.0.2:6443\", \"health\": \"up\"}, {\"job\":"
+    },
+    {
+      "server": "observability",
+      "tool": "list_alerts",
+      "status": "PASS",
+      "seconds": 3.06,
+      "note": "",
+      "detail": "[]"
+    },
+    {
+      "server": "github",
+      "tool": "list_workflow_runs",
+      "status": "NOT RUN",
+      "seconds": 0,
+      "note": "GITHUB_PAT not set",
+      "detail": ""
+    },
+    {
+      "server": "github",
+      "tool": "list_open_issues",
+      "status": "NOT RUN",
+      "seconds": 0,
+      "note": "GITHUB_PAT not set",
+      "detail": ""
+    },
+    {
+      "server": "github",
+      "tool": "get_issue",
+      "status": "NOT RUN",
+      "seconds": 0,
+      "note": "GITHUB_PAT not set",
+      "detail": ""
+    },
+    {
+      "server": "github",
+      "tool": "list_open_pull_requests",
+      "status": "NOT RUN",
+      "seconds": 0,
+      "note": "GITHUB_PAT not set",
+      "detail": ""
+    }
+  ]
+}

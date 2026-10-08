@@ -1,0 +1,418 @@
+{
+  "runs": [
+    {
+      "name": "lab-oom-killed",
+      "fault": "Container exceeds its memory limit (OOMKilled)",
+      "error": null,
+      "timings_s": {
+        "planner": 3.1,
+        "log_analysis": 64.5,
+        "fix_proposer": 55.6,
+        "verifier": 17.1
+      },
+      "total_s": 140.3,
+      "tool_calls": 5,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "get_pod_logs",
+        "get_pod_status",
+        "list_deployments",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "REVIEW",
+      "trust_score": 0.7479031,
+      "top_runbooks": [
+        [
+          "team_liveness-probe-restart-loop.txt",
+          0.748
+        ],
+        [
+          "team_chaos-pod-kill-self-healing.txt",
+          0.732
+        ],
+        [
+          "team_evicted-pods-node-pressure.txt",
+          0.728
+        ]
+      ],
+      "diagnosis": "**Diagnosis**\n\n- **Pod**: `lab-oom-killed-547bb767c5-k65nr` (namespace `sre\u2011lab`)  \n  - `get_pod_status` shows **phase\u202f=\u202fRunning**, **restart_count\u202f=\u202f66**, **last_terminated_reason\u202f=\u202fOOMKilled** (exit\u202f137).  \n  - `get_pod_events` lists a **BackOff** warning and the container is repeatedly started and then killed.  \n  - The pod\u2019s logs are empty (`get_pod_logs` returned `b''`), indicating the container never produced output before being evicted.\n\n- **Deployment**: `lab-oom-killed` (namespace `sre\u2011lab`)  \n  - `list_deployments` reports **desired_replicas\u202f=\u202f1** but **available_replicas\u202f=\u202f0** and **unavailable_replicas\u202f=\u202f1**.  \n  - The single replica is the pod above, which keeps restarting.\n\n**Root cause**\n\nThe container is being terminated by the kubelet\u2019s OOM killer. The pod\u2019s last termination reason is `OOMKilled`, and the restart count is high, which is the classic signature of a **CrashLoopBackOff caused by memory exhaustion**. The deployment has no visible memory limit in the data we queried, so the container is likely running with the default (no limit) or an insufficient limit, causing it to exceed the node\u2019s available memory and be killed.\n\n**Next steps**\n\n1. Inspect the deployment\u2019s pod template to confirm the memory request/limit (`kubectl -n sre-lab get deployment lab-oom-killed -o yaml`).  \n2. If the limit is missing or too low, increase it (e.g., `kubectl -n sre-lab patch deployment lab-oom-killed --type=json -p='[{\"op\":\"add\",\"path\":\"/spec/template/spec/containers/0",
+      "diagnosis_correct": true,
+      "action_correct": true,
+      "runbook_hit": false,
+      "runbook_top1": false,
+      "correct": true
+    },
+    {
+      "name": "lab-crashloop",
+      "fault": "App exits at startup (database unreachable)",
+      "error": null,
+      "timings_s": {
+        "planner": 1.7,
+        "log_analysis": 87.2,
+        "fix_proposer": 50.4,
+        "verifier": 11.3
+      },
+      "total_s": 150.6,
+      "tool_calls": 5,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "get_pod_logs",
+        "get_pod_status",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "REVIEW",
+      "trust_score": 0.7843255,
+      "top_runbooks": [
+        [
+          "team_crashloopbackoff-application-error.txt",
+          0.784
+        ],
+        [
+          "team_liveness-probe-restart-loop.txt",
+          0.751
+        ],
+        [
+          "team_readiness-probe-failing.txt",
+          0.732
+        ]
+      ],
+      "diagnosis": "**Diagnosis**\n\nThe deployment **lab\u2011crashloop** in namespace **sre\u2011lab** is repeatedly restarting because its single container exits with an error.  \nKey evidence from the cluster:\n\n| Tool | Result | Interpretation |\n|------|--------|----------------|\n| `get_pod_status` (lab\u2011crashloop\u20116f997f77b4\u201194nm4) | `phase: Running`, `ready_containers: 0`, `restart_count: 67`, `last_terminated_reason: Error`, `exit_code: 1` | The pod is alive but never becomes ready; it keeps crashing. |\n| `get_pod_logs` | `FATAL: cannot connect to database orders-db.internal:5432: connection refused` | The application inside the container fails to start because it cannot reach its database. |\n| `get_pod_events` | Repeated `BackOff` events for container *app* | Kubernetes is retrying the container after each crash. |\n| `list_pods` | Only one pod of the deployment is running; no other pods show similar failures. | The issue is isolated to this deployment. |\n\n**Root cause**\n\nThe container (busybox:1.36) is executing a command that attempts to connect to a PostgreSQL database at `orders-db.internal:5432`. The connection is refused, causing the process to exit with code\u202f1. This could be due to:\n\n* The database service `orders-db.internal` not existing or not exposing port\u202f5432 in the `sre\u2011lab` namespace.\n* Network policies or DNS mis\u2011configuration preventing the pod from resolving or reaching the database.\n* The database being down or not yet ready when the pod starts.\n\n**Immediate action**\n\n1. Verify that t",
+      "diagnosis_correct": true,
+      "action_correct": true,
+      "runbook_hit": true,
+      "runbook_top1": true,
+      "correct": true
+    },
+    {
+      "name": "lab-image-pull",
+      "fault": "Image does not exist (ImagePullBackOff)",
+      "error": null,
+      "timings_s": {
+        "planner": 1.6,
+        "log_analysis": 55.0,
+        "fix_proposer": 42.8,
+        "verifier": 55.3
+      },
+      "total_s": 154.7,
+      "tool_calls": 3,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "list_deployments",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "gemini"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "ACCEPT",
+      "trust_score": 0.8413677,
+      "top_runbooks": [
+        [
+          "team_imagepullbackoff-bad-image.txt",
+          0.841
+        ],
+        [
+          "team_missing-configmap-secret.txt",
+          0.651
+        ],
+        [
+          "team_service-no-endpoints.txt",
+          0.644
+        ]
+      ],
+      "diagnosis": "**Diagnosis**\n\nThe `lab-image-pull` deployment is creating a pod that remains in the **Pending** state.  \nKubernetes events for the pod (`lab-image-pull-67d4797575-hq9q4`) show:\n\n1. **Pulling** the image `registry.invalid/does-not-exist/lab-app:never`.  \n2. **Failed** to resolve the image reference \u2013 DNS lookup for `registry.invalid` fails (`no such host`).  \n3. Repeated **BackOff** and **ImagePullBackOff** errors.\n\nThus the deployment cannot become available because the container image cannot be pulled from the specified registry. The registry hostname (`registry.invalid`) is not resolvable in the cluster, indicating a mis\u2011configured image reference or missing DNS/registry access.\n\n**Next steps**\n\n- Verify the intended registry URL and image tag.  \n- Update the deployment spec with the correct, reachable registry (e.g., `registry.internal.company.com/...`).  \n- If a private registry is intended, ensure the cluster can resolve the hostname and that any required `imagePullSecrets` are present.  \n- After correcting the image reference, redeploy or restart the deployment.",
+      "diagnosis_correct": true,
+      "action_correct": true,
+      "runbook_hit": true,
+      "runbook_top1": true,
+      "correct": true
+    },
+    {
+      "name": "lab-pending",
+      "fault": "Requests more memory than the node has (FailedScheduling)",
+      "error": null,
+      "timings_s": {
+        "planner": 1.4,
+        "log_analysis": 60.4,
+        "fix_proposer": 44.1,
+        "verifier": 12.1
+      },
+      "total_s": 118.0,
+      "tool_calls": 4,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "get_pod_status",
+        "list_deployments",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "ACCEPT",
+      "trust_score": 0.8211283,
+      "top_runbooks": [
+        [
+          "team_pending-insufficient-resources.txt",
+          0.821
+        ],
+        [
+          "team_oomkilled-memory-limit.txt",
+          0.722
+        ],
+        [
+          "team_evicted-pods-node-pressure.txt",
+          0.721
+        ]
+      ],
+      "diagnosis": "**Diagnosis**\n\nThe pod `lab-pending-857cf85b8-8ml7n` in namespace `sre-lab` is stuck in the **Pending** state.  \nThe Kubernetes events for this pod repeatedly report:\n\n```\nFailedScheduling: 0/1 nodes are available: 1 Insufficient memory\n```\n\nThis indicates that the pod\u2019s memory request exceeds the allocatable memory on the only node that could accept it. No preemption can resolve the issue, so the pod cannot be scheduled.\n\n**Root cause**\n\n- The pod\u2019s memory request (defined in its Deployment spec) is larger than the free memory on the cluster\u2019s node(s).\n- Consequently, the scheduler cannot place the pod, leading to the persistent Pending status.\n\n**Next steps**\n\n1. **Verify the pod\u2019s memory request** in the `lab-pending` Deployment (`kubectl get deployment lab-pending -n sre-lab -o yaml`).\n2. **Check node memory availability** (`kubectl describe node <node>` or `kubectl top node`) to confirm the actual free memory.\n3. **Adjust the pod\u2019s resource request** to fit within the node\u2019s capacity, or\n4. **Add more nodes / increase node size** if the workload truly requires more memory.\n\nOnce the memory requirement is satisfied, the pod will transition to the Running state.",
+      "diagnosis_correct": true,
+      "action_correct": true,
+      "runbook_hit": true,
+      "runbook_top1": true,
+      "correct": true
+    },
+    {
+      "name": "lab-readiness-fail",
+      "fault": "Readiness probe path returns 404",
+      "error": null,
+      "timings_s": {
+        "planner": 1.5,
+        "log_analysis": 104.7,
+        "fix_proposer": 67.8,
+        "verifier": 12.4
+      },
+      "total_s": 186.4,
+      "tool_calls": 4,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "get_pod_logs",
+        "list_deployments",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "REVIEW",
+      "trust_score": 0.7155524,
+      "top_runbooks": [
+        [
+          "team_readiness-probe-failing.txt",
+          0.716
+        ],
+        [
+          "team_service-no-endpoints.txt",
+          0.61
+        ],
+        [
+          "team_liveness-probe-restart-loop.txt",
+          0.59
+        ]
+      ],
+      "diagnosis": "**Diagnosis**\n\nThe `lab-readiness-fail` deployment is running a single pod (`lab-readiness-fail-65c7d8594b-4vjtr`) that is in the **Running** phase, but its readiness probe never succeeds.\n\n* **Pod events** show repeated `Unhealthy` warnings:  \n  * `HTTP probe failed with statuscode: 404`  \n  * `Get \"http://10.244.0.19:80/healthz-does-not-exist\": dial tcp \u2026 connection refused`\n\n* **Pod logs** confirm that Nginx is returning 404 for the requested path `/healthz-does-not-exist` because that file does not exist in the container image.\n\nThus, the deployment is healthy at the container level, but the readiness probe is incorrectly configured to hit a non\u2011existent endpoint, causing the pod to stay \u201cNotReady\u201d and the deployment to report `available_replicas: 0`.\n\n**Root cause:** Misconfigured readiness probe path (`/healthz-does-not-exist`) that does not exist in the container.",
+      "diagnosis_correct": true,
+      "action_correct": true,
+      "runbook_hit": true,
+      "runbook_top1": true,
+      "correct": true
+    },
+    {
+      "name": "lab-scaled-to-zero",
+      "fault": "Deployment scaled to 0 replicas",
+      "error": null,
+      "timings_s": {
+        "planner": 1.7,
+        "log_analysis": 59.7,
+        "fix_proposer": 51.3,
+        "verifier": 16.4
+      },
+      "total_s": 129.1,
+      "tool_calls": 3,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "list_deployments",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "REVIEW",
+      "trust_score": 0.60892916,
+      "top_runbooks": [
+        [
+          "team_deployment-under-replicated-scale.txt",
+          0.609
+        ],
+        [
+          "team_chaos-pod-kill-self-healing.txt",
+          0.572
+        ],
+        [
+          "team_rollout-stuck-progress-deadline.txt",
+          0.558
+        ]
+      ],
+      "diagnosis": "**Investigation Summary \u2013 `lab-scaled-to-zero` Deployment (namespace `sre-lab`)**\n\n| Step | Tool | Output | Observation |\n|------|------|--------|-------------|\n| 1 | `list_deployments` | Deployment `lab-scaled-to-zero` shows `desired_replicas: 0`, `available_replicas: 0`, `updated_replicas: 0` | Deployment is intentionally scaled to zero. |\n| 2 | `list_pods` | No pod with name `lab-scaled-to-zero-*` exists; all pods belong to other deployments. | No running pods for this deployment. |\n| 3 | `get_pod_events` (for pod `lab-scaled-to-zero`) | Event: *ScalingReplicaSet* \u2013 \u201cScaled down replica set lab-scaled-to-zero\u2011b5b845648 from 1 to 0\u201d | The replica set was explicitly scaled down to zero. |\n\n### Diagnosis\n- The deployment\u2019s **desired replica count is 0**, which is why there are no running pods.  \n- Because the service that selects pods by the `lab-scaled-to-zero` label has no endpoints, any request to that service will fail (e.g., connection refused or 503).  \n- The alert is therefore a **false\u2011positive** caused by the deployment being intentionally scaled to zero, not by a scheduling or crash issue.\n\n### Recommended Actions\n1. **Confirm Intent** \u2013 Verify with the team whether scaling to zero was intentional (e.g., autoscaling, cost\u2011saving, or a manual test).  \n2. **Scale Back (if needed)** \u2013 If the service should be available, run:\n   ```bash\n   kubectl scale deploy lab-scaled-to-zero --replicas=1 -n sre-lab\n   ```\n3. **Check Service Selector** \u2013 Ensure the service\u2019s selector",
+      "diagnosis_correct": true,
+      "action_correct": false,
+      "runbook_hit": true,
+      "runbook_top1": true,
+      "correct": false
+    },
+    {
+      "name": "lab-missing-config",
+      "fault": "References a ConfigMap that does not exist",
+      "error": null,
+      "timings_s": {
+        "planner": 1.6,
+        "log_analysis": 33.5,
+        "fix_proposer": 31.8,
+        "verifier": 10.2
+      },
+      "total_s": 77.1,
+      "tool_calls": 3,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "get_pod_status",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "REVIEW",
+      "trust_score": 0.7163331,
+      "top_runbooks": [
+        [
+          "team_missing-configmap-secret.txt",
+          0.716
+        ],
+        [
+          "team_service-no-endpoints.txt",
+          0.649
+        ],
+        [
+          "team_readiness-probe-failing.txt",
+          0.644
+        ]
+      ],
+      "diagnosis": "**Diagnosis**  \nThe pod `lab-missing-config-b4c7b57f9-glr8p` is stuck in **Pending** because its pod template mounts a ConfigMap named `lab-app-config`, which does not exist in the `sre-lab` namespace (event: \u201cError: configmap `lab-app-config` not found\u201d).  \n\n**Recommendation**  \nCreate the missing ConfigMap (`kubectl create configmap lab-app-config \u2026`) or update the `lab-missing-config` deployment to reference an existing ConfigMap. Once the ConfigMap is present, the pod will transition to Running.",
+      "diagnosis_correct": true,
+      "action_correct": true,
+      "runbook_hit": true,
+      "runbook_top1": true,
+      "correct": true
+    },
+    {
+      "name": "lab-healthy",
+      "fault": "Nothing is wrong (control)",
+      "error": null,
+      "timings_s": {
+        "planner": 1.6,
+        "log_analysis": 83.9,
+        "fix_proposer": 34.0,
+        "verifier": 11.9
+      },
+      "total_s": 131.4,
+      "tool_calls": 5,
+      "tool_call_errors": 0,
+      "tools_used": [
+        "get_pod_events",
+        "get_pod_status",
+        "list_deployments",
+        "list_pods"
+      ],
+      "models": {
+        "planner": "groq",
+        "log_analysis": "groq",
+        "fix_proposer": "groq",
+        "verifier": "groq"
+      },
+      "degraded": false,
+      "recommended_action": "none",
+      "action_target": null,
+      "action_replicas": null,
+      "classification": "REVIEW",
+      "trust_score": 0.6786395,
+      "top_runbooks": [
+        [
+          "team_chaos-pod-kill-self-healing.txt",
+          0.679
+        ],
+        [
+          "team_readiness-probe-failing.txt",
+          0.672
+        ],
+        [
+          "team_liveness-probe-restart-loop.txt",
+          0.666
+        ]
+      ],
+      "diagnosis": "**Diagnosis**\n\nThe alert for deployment **lab\u2011healthy** in namespace **sre\u2011lab** is a false positive.\n\n* **Deployment status** \u2013 `list_deployments` shows:\n  * `desired_replicas: 2`\n  * `available_replicas: 2`\n  * `ready_replicas: 2`\n  * `unavailable_replicas: 0`\n\n  All replicas are available and ready.\n\n* **Pod health** \u2013 `list_pods` lists two pods (`lab-healthy-779c7dff9c-7frcx` and `lab-healthy-779c7dff9c-7qx7g`) that are in the **Running** phase.  \n  `get_pod_status` for each pod reports:\n  * `phase: Running`\n  * `ready_containers: 1`\n  * `restart_count: 0`\n\n* **Events** \u2013 `get_pod_events` for one pod shows only normal events:\n  * Scheduled \u2192 node `ai-sre-control-plane`\n  * Pulled \u2192 image `nginx:1.27-alpine` already present\n  * Created \u2192 container created\n  * Started \u2192 container started\n\n  No `Failed`, `Pending`, `CrashLoopBackOff`, or other error reasons appear.\n\nBecause the deployment is fully available, pods are healthy, and there are no error events, the monitoring alert is incorrectly flagging the deployment. No action is required on the deployment itself. The alert rule should be reviewed for false\u2011positive conditions.",
+      "diagnosis_correct": false,
+      "action_correct": true,
+      "runbook_hit": null,
+      "runbook_top1": null,
+      "correct": false
+    }
+  ]
+}

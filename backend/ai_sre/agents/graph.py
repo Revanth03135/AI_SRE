@@ -94,6 +94,17 @@ def _get_anomaly_model() -> Any:
 
 
 VALID_RECOMMENDED_ACTIONS = ("restart_deployment", "scale_deployment", "none")
+MAX_ACTION_REPLICAS = 10  # same bound the Kubernetes MCP server enforces when it executes a scale
+# Failure signatures for which an action is not a remedy, taken from knowledge/runbooks: a restart cannot fix
+# a bad image, a missing ConfigMap or an unschedulable pod, and more replicas cannot fix a crash loop or a
+# failing readiness probe. If the evidence about the target shows one, the action is dropped.
+NON_REMEDIABLE_SIGNATURES = (
+    ("an image pull failure", re.compile(r"ImagePullBackOff|ErrImagePull|Failed to pull image", re.I), {"restart_deployment", "scale_deployment"}),
+    ("a missing ConfigMap or Secret", re.compile(r"CreateContainerConfigError|config ?map .{0,60}not found|secret .{0,60}not found", re.I), {"restart_deployment", "scale_deployment"}),
+    ("an unschedulable pod", re.compile(r"FailedScheduling|Insufficient (cpu|memory)|nodes are available", re.I), {"restart_deployment", "scale_deployment"}),
+    ("a crash loop", re.compile(r"CrashLoopBackOff", re.I), {"scale_deployment"}),
+    ("a failing readiness probe", re.compile(r"Readiness probe failed", re.I), {"scale_deployment"}),
+)
 GEMINI_SYNTHESIS_FAILURE_PREFIX = "Tool investigation completed successfully, but final diagnosis synthesis failed"
 GEMINI_UNAVAILABLE_PREFIX = "Gemini fallback was unavailable"
 
@@ -826,6 +837,24 @@ def _observed_deployment_context(tool_calls: list[dict[str, Any]]) -> tuple[set[
     return observed_names, observed_namespaces
 
 
+def _non_remediable_signature(deployment_name: str | None, action: str, tool_calls: list[dict[str, Any]]) -> str | None:
+    """Describe a failure in the evidence about this deployment that the action cannot fix, if there is one."""
+    if not deployment_name:
+        return None
+    for call in tool_calls or []:
+        if not isinstance(call, dict) or _is_tool_error(call):
+            continue
+        # Only evidence about the target counts; another deployment's failure must not block this action.
+        args_text = json.dumps(call.get("args"), default=str)
+        result_text = json.dumps(call.get("result"), default=str)
+        if deployment_name not in args_text and deployment_name not in result_text:
+            continue
+        for label, pattern, forbidden_actions in NON_REMEDIABLE_SIGNATURES:
+            if action in forbidden_actions and pattern.search(result_text):
+                return label
+    return None
+
+
 def validate_recommended_action(
     payload: dict[str, Any] | None,
     tool_calls: list[dict[str, Any]],
@@ -871,6 +900,12 @@ def validate_recommended_action(
                 log.append(
                     "Validation: scale_deployment action_replicas is not a valid integer; it was cleared."
                 )
+            if cleaned["action_replicas"] is not None and not 0 <= cleaned["action_replicas"] <= MAX_ACTION_REPLICAS:
+                log.append(
+                    f"Validation: scale_deployment action_replicas={cleaned['action_replicas']} is outside "
+                    f"0..{MAX_ACTION_REPLICAS}; it was cleared."
+                )
+                cleaned["action_replicas"] = None
     else:
         cleaned["action_replicas"] = None
 
@@ -896,6 +931,14 @@ def validate_recommended_action(
                 f"'{observed_namespace}' for deployment '{cleaned['action_deployment_name']}' and was corrected."
             )
             cleaned["action_namespace"] = observed_namespace
+
+        signature = _non_remediable_signature(cleaned["action_deployment_name"], cleaned["recommended_action"], tool_calls)
+        if signature:
+            log.append(
+                f"Validation: '{cleaned['recommended_action']}' on '{cleaned['action_deployment_name']}' was dropped because "
+                f"the observed failure is {signature}, which that action cannot fix; a human must correct the cause."
+            )
+            cleaned["recommended_action"] = "none"
 
     if cleaned["recommended_action"] == "none":
         cleaned["action_namespace"] = None
@@ -1099,6 +1142,10 @@ def _has_real_tool_evidence(tool_calls: list[dict[str, Any]]) -> bool:
     return False
 
 
+def _validation_intervened(state: GraphState) -> bool:
+    return any(isinstance(entry, str) and entry.startswith("Validation:") for entry in state.get("log", []))
+
+
 def classify_verifier_state(state: GraphState) -> tuple[float, str]:
     rag_score = _max_rag_score(state.get("retrieved_chunks", []))
     tool_evidence = _has_real_tool_evidence(state.get("tool_calls", []))
@@ -1109,6 +1156,9 @@ def classify_verifier_state(state: GraphState) -> tuple[float, str]:
     if (not tool_evidence) and rag_score == 0.0:
         return rag_score, "REJECT"
     if tool_evidence and rag_score >= RAG_STRONG_THRESHOLD:
+        # A proposal the guardrails had to correct or drop is not trustworthy enough for ACCEPT.
+        if _validation_intervened(state):
+            return rag_score, "REVIEW"
         return rag_score, "ACCEPT"
     return rag_score, "REVIEW"
 
@@ -1126,8 +1176,9 @@ def verifier_node(state: GraphState) -> GraphState:
         f"Diagnosis: {state['diagnosis']}\nProposed fix: {state['proposed_fix']}\n"
         f"Measured evidence: rag_score={rag_score:.6f}, tool_evidence_present={_has_real_tool_evidence(state.get('tool_calls', []))}, "
         f"diagnosis_degraded={bool(state.get('diagnosis_degraded'))}, "
-        f"gate rules: ACCEPT needs real tool evidence and rag_score >= {RAG_STRONG_THRESHOLD:.2f}; "
-        f"REJECT means no tool evidence and no runbook match; everything else is REVIEW.",
+        f"validation_intervened={_validation_intervened(state)}, "
+        f"gate rules: ACCEPT needs real tool evidence, rag_score >= {RAG_STRONG_THRESHOLD:.2f} and no correction of the "
+        f"proposed action by validation; REJECT means no tool evidence and no runbook match; everything else is REVIEW.",
         "verifier",
     )
     updated_state = dict(state)
