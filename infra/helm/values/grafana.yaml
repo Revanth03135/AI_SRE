@@ -1,3 +1,5 @@
+# Grafana for the local lab. Terraform adds the admin password, NodePort and the dashboard JSON
+# from infra/helm/dashboards/.
 service:
   type: NodePort
 
@@ -9,14 +11,39 @@ resources:
     cpu: 50m
     memory: 128Mi
   limits:
-    memory: 256Mi
+    memory: 320Mi
 
 datasources:
   datasources.yaml:
     apiVersion: 1
     datasources:
       - name: Prometheus
+        uid: prometheus
         type: prometheus
         access: proxy
         url: http://prometheus-server.monitoring.svc.cluster.local
         isDefault: true
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: ai-sre
+        orgId: 1
+        folder: AI-SRE
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/ai-sre
+
+grafana.ini:
+  # Local lab only: anyone who can reach port 3300 can view dashboards without logging in.
+  auth.anonymous:
+    enabled: true
+    org_role: Viewer
+  dashboards:
+    default_home_dashboard_path: /var/lib/grafana/dashboards/ai-sre/ai-sre-lab.json
+  analytics:
+    reporting_enabled: false
+    check_for_updates: false

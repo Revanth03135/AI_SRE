@@ -4,7 +4,7 @@
   plus the Qdrant container the agent's RAG layer reads from.
 
 .PARAMETER Full
-  Also run the ad service, load generator and Grafana. Needs roughly 6 GB of memory for Docker.
+  Also run the ad service and the load generator (steady shop traffic). Needs roughly 6 GB of memory for Docker.
 
 .PARAMETER LoadRag
   (Re)build the runbook index in Qdrant from data/runbooks/void and knowledge/runbooks.
@@ -63,7 +63,7 @@ if ($LASTEXITCODE -ne 0) { throw "terraform init failed" }
 
 $applyArgs = @("apply", "-auto-approve", "-input=false")
 if ($Full) {
-    $applyArgs += @("-var", "enable_adservice=true", "-var", "enable_loadgenerator=true", "-var", "enable_grafana=true")
+    $applyArgs += @("-var", "enable_adservice=true", "-var", "enable_loadgenerator=true")
 }
 Write-Host "Applying Terraform (first run pulls about 1.5 GB of images; this takes several minutes)..." -ForegroundColor Cyan
 terraform @tfArgs @applyArgs
@@ -89,7 +89,7 @@ Write-Host "AI-SRE lab is up." -ForegroundColor Green
 Write-Host "  kubectl context : kind-$clusterName"
 Write-Host "  Storefront      : http://localhost:8081"
 Write-Host "  Prometheus      : http://localhost:9090   (PROMETHEUS_URL in .env)"
-if ($Full) { Write-Host "  Grafana         : http://localhost:3300   (admin / admin)" }
+Write-Host "  Grafana         : http://localhost:3300   (dashboard: AI-SRE Lab; admin / admin to edit)"
 Write-Host "  Qdrant          : http://localhost:6333/dashboard"
 Write-Host ""
 Write-Host "Next: kubectl apply -f infra/faults/broken-workloads.yaml   (broken workloads in namespace sre-lab)"

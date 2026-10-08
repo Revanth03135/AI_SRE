@@ -84,6 +84,11 @@ resource "helm_release" "grafana" {
     yamlencode({
       adminPassword = var.grafana_admin_password
       service       = { nodePort = local.grafana_node_port }
+      # Every JSON file in infra/helm/dashboards is provisioned into the AI-SRE folder.
+      dashboards = {
+        ai-sre = { for f in fileset("${path.module}/../helm/dashboards", "*.json") :
+        trimsuffix(f, ".json") => { json = file("${path.module}/../helm/dashboards/${f}") } }
+      }
     }),
   ]
 

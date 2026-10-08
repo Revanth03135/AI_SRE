@@ -7,7 +7,7 @@ A practice Kubernetes cluster on your laptop for the agent to investigate. Built
 Windows -> Docker Desktop -+- container "qdrant"                (runbook index; not Kubernetes)
                            +- container "ai-sre-control-plane"  (kind: a whole Kubernetes cluster in one container)
                                 +- namespace online-boutique   the demo shop (10 services)
-                                +- namespace monitoring        Prometheus + kube-state-metrics
+                                +- namespace monitoring        Prometheus + kube-state-metrics + Grafana
                                 +- namespace chaos-mesh        fault injection
                                 +- namespace sre-lab           broken workloads (kubectl apply, not Terraform)
 ```
@@ -28,13 +28,14 @@ kubectl get nodes                         # ai-sre-control-plane   Ready
 ```
 
 Both containers use `--restart unless-stopped`, so they normally come back on their own. The default profile fits in
-about 3.5 GB of Docker memory; `-Full` needs about 6 GB. If `kind`, `helm` or `terraform` are not found, reopen the terminal.
+about 3.5 GB of Docker memory; `-Full` (adds the ad service and a load generator) needs about 6 GB. If `kind`, `helm` or `terraform` are not found, reopen the terminal.
 
 ## Where to look
 
 | What | Address |
 |---|---|
 | Demo shop | http://127.0.0.1:8081 (use 127.0.0.1, not `localhost`) |
+| Grafana (opens on the AI-SRE Lab dashboard; `admin` / `admin` to edit) | http://localhost:3300 |
 | Prometheus | http://localhost:9090 |
 | Qdrant | http://localhost:6333/dashboard |
 | API docs | http://127.0.0.1:8000/docs |
@@ -55,6 +56,32 @@ docker exec -it ai-sre-control-plane bash            # a shell inside the cluste
 
 The agent's MCP tools (`list_pods`, `get_pod_status`, `get_pod_events`, `get_pod_logs`, `list_deployments`) are these
 same queries made available to the LLM. `k9s` (`winget install k9s`) is a friendlier terminal UI.
+
+## Metrics and logs: what each tool shows
+
+| Tool | Shows | Where |
+|---|---|---|
+| Kubernetes (`kubectl`) | Current state: pod status, events, deployments, logs | terminal |
+| Prometheus | Numbers over time: restarts, memory, CPU, replica counts, waiting reasons | http://localhost:9090/graph |
+| Grafana | Prometheus data as charts; the **AI-SRE Lab: what the agent sees** dashboard | http://localhost:3300 |
+
+The dashboard's panels map to the agent's tools: waiting and termination reasons and restarts are what
+`get_pod_status` and `get_pod_events` report, missing replicas is `list_deployments`, and memory and CPU are
+what the agent can ask Prometheus for with `instant_query`. Open the dashboard while the agent analyzes an
+alert and you can see the same facts it is reasoning about.
+
+Logs are not in Prometheus or Grafana here. Read them with `kubectl logs <pod> -n <namespace>` (the agent's
+`get_pod_logs` does the same). Showing logs in Grafana would need Loki, which is not installed.
+
+Useful Prometheus queries to paste into the Graph tab:
+
+```
+kube_pod_container_status_restarts_total{namespace="sre-lab"}
+kube_pod_container_status_last_terminated_reason{namespace="sre-lab"} == 1
+kube_pod_container_status_waiting_reason{namespace="sre-lab"} == 1
+kube_deployment_spec_replicas - kube_deployment_status_replicas_available
+sum by (pod) (container_memory_working_set_bytes{namespace="online-boutique", container!=""})
+```
 
 ## Break things and watch the agent
 

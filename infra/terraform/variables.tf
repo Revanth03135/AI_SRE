@@ -47,9 +47,9 @@ variable "enable_loadgenerator" {
 }
 
 variable "enable_grafana" {
-  description = "Install Grafana with a Prometheus datasource."
+  description = "Install Grafana with a Prometheus datasource and the AI-SRE lab dashboard (about 150 MiB)."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "grafana_admin_password" {
