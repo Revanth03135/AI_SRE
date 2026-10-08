@@ -96,7 +96,7 @@ print(f"   Total features: {len(feature_cols_final)}")
 
 # 2. LOAD PRE-TRAINED LIGHTGBM
 print("\n2. Loading pre-trained LightGBM model...")
-lgb_model = joblib.load(REPO_ROOT / "src/models/lightgbm_final_classifier.joblib")
+lgb_model = joblib.load(REPO_ROOT / "ml/models/lightgbm_final_classifier.joblib")
 print("   [OK] LightGBM loaded")
 
 # 3. GET LIGHTGBM RAW PROBABILITIES
@@ -228,11 +228,11 @@ print(f"{'='*70}")
 
 # 11. SAVE ENSEMBLE MODELS
 print("\n11. Saving calibrated models and ensemble metadata...")
-calibrator_path = REPO_ROOT / "src/models/probability_calibrator_isotonic.joblib"
+calibrator_path = REPO_ROOT / "ml/models/probability_calibrator_isotonic.joblib"
 joblib.dump(calibrator, calibrator_path)
 print(f"   [OK] Calibrator saved: {calibrator_path}")
 
-xgb_model_path = REPO_ROOT / "src/models/xgboost_ensemble.joblib"
+xgb_model_path = REPO_ROOT / "ml/models/xgboost_ensemble.joblib"
 joblib.dump(xgb_model, xgb_model_path)
 print(f"   [OK] XGBoost model saved: {xgb_model_path}")
 
@@ -247,7 +247,7 @@ ensemble_config = {
     'test_recall': test_rec,
     'test_auc': test_auc
 }
-config_path = REPO_ROOT / "src/models/ensemble_config.joblib"
+config_path = REPO_ROOT / "ml/models/ensemble_config.joblib"
 joblib.dump(ensemble_config, config_path)
 print(f"   [OK] Ensemble config saved: {config_path}")
 

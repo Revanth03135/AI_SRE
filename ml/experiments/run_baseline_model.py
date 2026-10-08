@@ -154,7 +154,7 @@ mlflow.log_metrics({
 })
 
 # Save model
-model_path = REPO_ROOT / "src/models/isolation_forest_baseline.joblib"
+model_path = REPO_ROOT / "ml/models/isolation_forest_baseline.joblib"
 model_path.parent.mkdir(parents=True, exist_ok=True)
 joblib.dump(model, model_path)
 print(f"   [OK] Model saved to {model_path}")

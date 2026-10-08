@@ -3,7 +3,8 @@ services:
     name: ai-sre-api
     runtime: docker
     plan: free
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
     healthCheckPath: /health
     envVars:
       - key: AUTO_EXECUTE_ON_ACCEPT

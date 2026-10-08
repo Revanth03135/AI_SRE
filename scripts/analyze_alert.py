@@ -14,7 +14,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
 sys.stdout.reconfigure(encoding="utf-8")
 
 
@@ -32,8 +32,8 @@ def main() -> int:
     args = parser.parse_args()
 
     # Imported late so --help works without API keys.
-    from src.agents.graph import graph
-    from src.agents.runner import _initial_graph_state, run_alert_and_persist
+    from ai_sre.agents.graph import graph
+    from ai_sre.agents.runner import _initial_graph_state, run_alert_and_persist
 
     started = time.perf_counter()
     if args.persist:

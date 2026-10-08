@@ -201,7 +201,7 @@ axes[1, 1].pie([anomaly_false, anomaly_true], labels=['Normal', 'Anomaly'], auto
 axes[1, 1].set_title(f'Class Distribution (Total: {total_rows:,} rows)', fontsize=12, fontweight='bold')
 
 plt.tight_layout()
-out_img = REPO_ROOT / "notebooks/eda_phase2_visualizations.png"
+out_img = REPO_ROOT / "ml/reports/eda_phase2_visualizations.png"
 plt.savefig(out_img, dpi=150, bbox_inches='tight')
 print(f"   [OK] Saved visualizations to {out_img}")
 

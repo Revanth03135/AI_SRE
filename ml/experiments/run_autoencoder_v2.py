@@ -103,7 +103,7 @@ num_epochs = 50
 best_val_loss = float('inf')
 patience = 6
 patience_counter = 0
-best_model_path = REPO_ROOT / "src/models/autoencoder_v2_advanced.pth"
+best_model_path = REPO_ROOT / "ml/models/autoencoder_v2_advanced.pth"
 best_model_path.parent.mkdir(parents=True, exist_ok=True)
 
 # 5. MLFLOW SETUP

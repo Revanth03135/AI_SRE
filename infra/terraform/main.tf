@@ -149,7 +149,7 @@ resource "kubernetes_service_v1" "frontend_nodeport" {
   depends_on = [helm_release.online_boutique]
 }
 
-# Namespace for the deliberately broken deployments in infra/scenarios (kept apart from the shop).
+# Namespace for the deliberately broken deployments in infra/faults (kept apart from the shop).
 resource "kubernetes_namespace_v1" "sre_lab" {
   metadata {
     name = "sre-lab"

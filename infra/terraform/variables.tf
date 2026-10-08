@@ -29,7 +29,7 @@ variable "grafana_host_port" {
 }
 
 variable "enable_chaos_mesh" {
-  description = "Install Chaos Mesh so infra/chaos-mesh-experiments can inject faults."
+  description = "Install Chaos Mesh so infra/faults/chaos-mesh can inject faults."
   type        = bool
   default     = true
 }

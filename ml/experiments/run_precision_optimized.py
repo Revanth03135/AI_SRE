@@ -297,7 +297,7 @@ mlflow.log_metrics({
 })
 
 # Save model
-model_path = REPO_ROOT / "src/models/lightgbm_precision_optimized.joblib"
+model_path = REPO_ROOT / "ml/models/lightgbm_precision_optimized.joblib"
 model_path.parent.mkdir(parents=True, exist_ok=True)
 joblib.dump(model_precision, model_path)
 print(f"   [OK] Model saved: {model_path}")
@@ -311,7 +311,7 @@ config = {
     'test_recall': test_rec,
     'test_auc': test_auc
 }
-config_path = REPO_ROOT / "src/models/precision_optimized_config.joblib"
+config_path = REPO_ROOT / "ml/models/precision_optimized_config.joblib"
 joblib.dump(config, config_path)
 print(f"   [OK] Config saved: {config_path}")
 

@@ -12,27 +12,25 @@ __pycache__/
 *.env.*
 !.env.example
 
-# Large/generated datasets and local data
-data/
+# Large/generated datasets and local data (anchored to the repository root)
+/data/
 gaia_download/
 tmp_gaia_samples/
 
 # Local experiment stores and databases
-mlruns/
-mlflow.db
+/mlruns/
+/mlflow.db
 
-# Trained model binaries and local artifacts
-src/models/*.joblib
-src/models/*.pth
-src/models/*.pt
-src/models/*.bin
+# Trained model binaries and other artifacts (the folder itself is kept by .gitkeep)
+ml/models/*
+!ml/models/.gitkeep
 
 # Temporary local outputs
 tmp_*.csv
 *.err
 
 # Local incident database (created on first API start)
-src/api/ai_sre.db
+backend/ai_sre/api/*.db
 *.db-journal
 
 # Online Boutique is installed from its Helm chart, not vendored here

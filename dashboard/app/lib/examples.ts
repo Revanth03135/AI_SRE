@@ -3,7 +3,7 @@ export type ExampleGroup = { group: string; items: ExampleAlert[] };
 
 const TAIL = "Investigate the real cluster state.";
 
-/** Alerts that match the broken workloads in infra/scenarios and the Online Boutique shop. */
+/** Alerts that match the broken workloads in infra/faults and the Online Boutique shop. */
 export const EXAMPLE_ALERTS: ExampleGroup[] = [
   {
     group: "Lab scenarios (namespace sre-lab)",

@@ -214,7 +214,7 @@ mlflow.log_metrics({
 })
 
 # Save model
-model_path = REPO_ROOT / "src/models/lightgbm_tuned_classifier.joblib"
+model_path = REPO_ROOT / "ml/models/lightgbm_tuned_classifier.joblib"
 model_path.parent.mkdir(parents=True, exist_ok=True)
 joblib.dump(model_tuned, model_path)
 print(f"   [OK] Model saved to {model_path}")

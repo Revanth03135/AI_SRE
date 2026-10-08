@@ -7,7 +7,7 @@
   Also run the ad service, load generator and Grafana. Needs roughly 6 GB of memory for Docker.
 
 .PARAMETER LoadRag
-  (Re)build the runbook index in Qdrant from data/runbooks/void and docs/runbooks.
+  (Re)build the runbook index in Qdrant from data/runbooks/void and knowledge/runbooks.
 
 .EXAMPLE
   .\scripts\up.ps1
@@ -79,7 +79,7 @@ if ($LoadRag) {
     $py = Join-Path $repo ".venv\Scripts\python.exe"
     foreach ($step in "chunk_runbooks", "embed_runbooks", "load_qdrant") {
         Write-Host "RAG: $step" -ForegroundColor Cyan
-        & $py (Join-Path $repo "src\rag\$step.py")
+        & $py (Join-Path $repo "backend\ai_sre\rag\$step.py")
         if ($LASTEXITCODE -ne 0) { throw "RAG step $step failed" }
     }
 }
@@ -92,4 +92,4 @@ Write-Host "  Prometheus      : http://localhost:9090   (PROMETHEUS_URL in .env)
 if ($Full) { Write-Host "  Grafana         : http://localhost:3300   (admin / admin)" }
 Write-Host "  Qdrant          : http://localhost:6333/dashboard"
 Write-Host ""
-Write-Host "Next: kubectl apply -f infra/scenarios/scenarios.yaml   (broken workloads in namespace sre-lab)"
+Write-Host "Next: kubectl apply -f infra/faults/broken-workloads.yaml   (broken workloads in namespace sre-lab)"

@@ -151,7 +151,7 @@ print(f"   Feature count: {len(feature_cols_all)}")
 
 # 3. LOAD BASELINE MODEL & GET FEATURE IMPORTANCE
 print("\n3. Loading baseline precision-optimized model...")
-baseline_model = joblib.load(REPO_ROOT / "src/models/lightgbm_precision_optimized.joblib")
+baseline_model = joblib.load(REPO_ROOT / "ml/models/lightgbm_precision_optimized.joblib")
 
 baseline_importance = baseline_model.feature_importance(importance_type='gain')
 feature_importance_df = pd.DataFrame({
@@ -292,7 +292,7 @@ print(f"   AUC:       {mean_auc:.4f} \u00b1 {std_auc:.4f}")
 
 # 6. SAVE PRUNED FEATURE LIST
 print("\n6. Saving pruned feature list...")
-pruned_features_path = REPO_ROOT / "src/models/pruned_features_top30.joblib"
+pruned_features_path = REPO_ROOT / "ml/models/pruned_features_top30.joblib"
 joblib.dump(top_30_features, pruned_features_path)
 print(f"   [OK] Pruned features saved: {pruned_features_path}")
 
